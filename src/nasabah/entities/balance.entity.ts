@@ -2,7 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -22,8 +22,8 @@ export class NasabahBalanceEntity {
   @Column()
   total_balance: string;
 
-  @OneToOne(() => NasabahEntity, (nasabah) => nasabah.balance)
-  nasabah: NasabahEntity;
+  @ManyToOne(() => NasabahEntity, (nasabah) => nasabah.balance)
+  nasabah: NasabahEntity[];
 
   @CreateDateColumn()
   created: Date;

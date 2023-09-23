@@ -13,11 +13,11 @@ export class SampahEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column()
+  name: string;
+
   @ManyToOne(() => SampahTypeEntity, (sampahtype) => sampahtype.sampah)
   kategory: SampahTypeEntity;
-
-  @Column()
-  jenis: string;
 
   @Column()
   price: number;

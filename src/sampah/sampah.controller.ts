@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SampahService } from './sampah.service';
 import { CreateSampahDto } from './dto/create-sampah.dto';
 import { UpdateSampahDto } from './dto/update-sampah.dto';
@@ -14,7 +22,8 @@ export class SampahController {
 
   @Get()
   findAll() {
-    return this.sampahService.findAll();
+    return this.sampahService.createSampahTransaction();
+    // return this.sampahService.findAll();
   }
 
   @Get(':id')

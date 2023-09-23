@@ -14,7 +14,7 @@ export class SampahTypeEntity {
   id: string;
 
   @OneToMany(() => SampahEntity, (sampah) => sampah.kategory)
-  sampah: SampahEntity;
+  sampah: SampahEntity[];
 
   @Column()
   name: string;
