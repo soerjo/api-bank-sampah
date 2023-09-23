@@ -2,25 +2,22 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { SampahTypeEntity } from './sampah-type.entity';
+import { TransactionEntity } from './transaction.entity';
 
-@Entity('sampah')
-export class SampahEntity {
+@Entity('trasaction-type')
+export class TransactionTypeEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => SampahTypeEntity, (sampahtype) => sampahtype.sampah)
-  kategory: SampahTypeEntity;
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.type)
+  transaction: TransactionEntity;
 
   @Column()
   jenis: string;
-
-  @Column()
-  price: number;
 
   @CreateDateColumn()
   created: Date;
