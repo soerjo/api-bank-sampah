@@ -1,15 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { SampahService } from './sampah.service';
 import { CreateSampahDto } from './dto/create-sampah.dto';
 import { UpdateSampahDto } from './dto/update-sampah.dto';
+import { QueryParamsSampahDto } from './dto/query-sampah.dto';
 
 @Controller('sampah')
 export class SampahController {
@@ -21,23 +14,22 @@ export class SampahController {
   }
 
   @Get()
-  findAll() {
-    return this.sampahService.createSampahTransaction();
-    // return this.sampahService.findAll();
+  findAll(@Query() queryParams: QueryParamsSampahDto) {
+    return this.sampahService.findAll(queryParams);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.sampahService.findOne(+id);
+    return this.sampahService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSampahDto: UpdateSampahDto) {
-    return this.sampahService.update(+id, updateSampahDto);
+    return this.sampahService.update(id, updateSampahDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.sampahService.remove(+id);
+    return this.sampahService.remove(id);
   }
 }

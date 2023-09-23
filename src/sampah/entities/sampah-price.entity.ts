@@ -1,12 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { SampahEntity } from './sampah.entity';
 
 @Entity('sampah-price')
@@ -14,12 +6,14 @@ export class SampahPriceEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToMany(() => SampahEntity)
-  @JoinTable()
+  @ManyToOne(() => SampahEntity, (sampah) => sampah.price)
   sampah: SampahEntity;
 
-  @Column()
+  @Column({ default: 0 })
   price: number;
+
+  @Column({ default: new Date().getTime(), type: 'bigint' })
+  created_time: number;
 
   @CreateDateColumn()
   created: Date;

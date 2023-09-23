@@ -1,53 +1,123 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSampahDto } from './dto/create-sampah.dto';
 import { UpdateSampahDto } from './dto/update-sampah.dto';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { SampahEntity } from './entities/sampah.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { SampahPriceEntity } from './entities/sampah-price.entity';
+import { QueryParamsSampahDto } from './dto/query-sampah.dto';
 
 @Injectable()
 export class SampahService {
-  constructor(private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(SampahEntity)
+    private sampahRepository: Repository<SampahEntity>,
+    @InjectRepository(SampahPriceEntity)
+    private sampahPriceRepository: Repository<SampahPriceEntity>,
 
-  async createSampahTransaction() {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    private dataSource: DataSource,
+  ) {}
 
-    try {
-      // const sampahEntity = queryRunner.manager.create(SampahEntity, {});
-      // await queryRunner.manager.save(users[0]);
-      // await queryRunner.manager.save(users[1]);
+  async create(createSampahDto: CreateSampahDto) {
+    const isSampahExists = await this.sampahRepository.findOneBy({
+      name: createSampahDto.name,
+      kategory: createSampahDto.kategory,
+    });
+    if (isSampahExists) return new HttpException('sampah already exists', HttpStatus.CONFLICT);
 
-      const sampah = await queryRunner.manager.find(SampahEntity);
+    const sampah = this.sampahRepository.create(createSampahDto);
+    const res_sampah = await this.sampahRepository.save(sampah);
 
-      await queryRunner.commitTransaction();
-      return sampah;
-    } catch (err) {
-      // since we have errors lets rollback the changes we made
-      await queryRunner.rollbackTransaction();
-    } finally {
-      // you need to release a queryRunner which was manually instantiated
-      await queryRunner.release();
+    const sampah_price = this.sampahPriceRepository.create({ sampah: res_sampah, created_time: new Date().getTime() });
+    await this.sampahPriceRepository.save(sampah_price);
+
+    return;
+  }
+
+  findAll(queryParamsDto: QueryParamsSampahDto) {
+    const queryBuilder = this.sampahPriceRepository.createQueryBuilder('sampah_price');
+    queryBuilder.innerJoinAndSelect('sampah_price.sampah', 'sampah');
+
+    queryParamsDto?.search &&
+      queryBuilder.andWhere('sampah.name like :name', {
+        name: `%${queryParamsDto?.search}%`,
+      });
+
+    queryParamsDto?.category &&
+      queryBuilder.andWhere('sampah.kategory = :kategory', {
+        kategory: `${queryParamsDto?.category}`,
+      });
+
+    queryParamsDto?.price_more_than &&
+      queryBuilder.andWhere('sampah_price.price >= :price_more_than', {
+        price_more_than: queryParamsDto?.price_more_than,
+      });
+
+    queryParamsDto?.price_less_than &&
+      queryBuilder.andWhere('sampah_price.price <= :transaction_less_than', {
+        transaction_less_than: queryParamsDto?.price_less_than,
+      });
+
+    queryParamsDto?.date_start &&
+      queryBuilder.andWhere('sampah_price.created_time >= :date_start', {
+        date_start: new Date(queryParamsDto?.date_start).getTime(),
+      });
+
+    queryParamsDto?.date_end &&
+      queryBuilder.andWhere('sampah_price.created_time < :date_end', {
+        date_end: new Date(queryParamsDto.date_end).getTime(),
+      });
+
+    queryBuilder.limit(queryParamsDto?.limit);
+    queryBuilder.offset(queryParamsDto?.limit * ((queryParamsDto?.page || 1) - 1));
+    queryBuilder.distinctOn(['sampah.name']);
+    queryBuilder.orderBy({
+      'sampah.name': 'ASC',
+      'sampah_price.created_time': 'DESC',
+    });
+
+    // queryBuilder.select([
+    //   'nasabah.username username',
+    //   'sampah.total_transaction total_transaction',
+    //   'sampah.total_sampah total_sampah',
+    // ]);
+    // return await queryBuilder.execute();
+    return queryBuilder.getRawMany();
+  }
+
+  findOne(id: string) {
+    const queryBuilder = this.sampahPriceRepository.createQueryBuilder('price');
+    queryBuilder.innerJoinAndSelect('price.sampah', 'sampah');
+    queryBuilder.distinctOn(['sampah.name']);
+    queryBuilder.orderBy({ 'sampah.name': 'ASC', 'price.created_time': 'DESC' });
+    queryBuilder.where('sampah.id = :id', { id });
+
+    return queryBuilder.execute();
+  }
+
+  async update(id: string, updateSampahDto: UpdateSampahDto) {
+    const isSampahExists = await this.findOne(id);
+    if (!isSampahExists[0]) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
+
+    if (updateSampahDto.name || updateSampahDto.kategory) {
+      await this.sampahRepository.update(id, {
+        name: String(updateSampahDto.name).toUpperCase() || isSampahExists[0].name,
+        kategory: String(updateSampahDto.kategory).toUpperCase() || isSampahExists[0].kategory,
+      });
     }
+
+    if (updateSampahDto.price) {
+      await this.sampahPriceRepository.save({
+        sampah: isSampahExists[0].sampah_id,
+        price: updateSampahDto.price,
+        created_time: new Date().getTime(),
+      });
+    }
+
+    return this.findOne(id);
   }
 
-  create(createSampahDto: CreateSampahDto) {
-    return 'This action adds a new sampah';
-  }
-
-  findAll() {
-    return `This action returns all sampah`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} sampah`;
-  }
-
-  update(id: number, updateSampahDto: UpdateSampahDto) {
-    return `This action updates a #${id} sampah`;
-  }
-
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} sampah`;
   }
 }

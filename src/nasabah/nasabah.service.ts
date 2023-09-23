@@ -96,12 +96,12 @@ export class NasabahService {
     if (isUsernameExists) return new HttpException('username is exists', HttpStatus.CONFLICT);
 
     await this.nasabahRepository.update(id, {
-      username: updateNasabahDto.username || isNasabahExist.username,
-      fullname: updateNasabahDto.fullname || isNasabahExist.fullname,
-      phone: updateNasabahDto.phone || isNasabahExist.phone,
-      rt: updateNasabahDto.rt || isNasabahExist.rt,
-      rw: updateNasabahDto.rw || isNasabahExist.rw,
-      balance: isNasabahExist.balance,
+      username: updateNasabahDto.username || isNasabahExist[0].username,
+      fullname: updateNasabahDto.fullname || isNasabahExist[0].fullname,
+      phone: updateNasabahDto.phone || isNasabahExist[0].phone,
+      rt: updateNasabahDto.rt || isNasabahExist[0].rt,
+      rw: updateNasabahDto.rw || isNasabahExist[0].rw,
+      balance: isNasabahExist[0].balance,
     });
 
     return this.findOne(id);

@@ -6,7 +6,6 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SampahEntity } from './sampah/entities/sampah.entity';
 import { SampahPriceEntity } from './sampah/entities/sampah-price.entity';
-import { SampahTypeEntity } from './sampah/entities/sampah-type.entity';
 import { NasabahEntity } from './nasabah/entities/nasabah.entity';
 import { NasabahBalanceEntity } from './nasabah/entities/balance.entity';
 import { TransactionEntity } from './transaction/entities/transaction.entity';
@@ -28,7 +27,6 @@ import { TransactionTypeEntity } from './transaction/entities/transaction-type.e
       entities: [
         SampahEntity,
         SampahPriceEntity,
-        SampahTypeEntity,
         NasabahEntity,
         NasabahBalanceEntity,
         TransactionEntity,

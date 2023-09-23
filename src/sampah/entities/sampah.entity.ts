@@ -1,12 +1,5 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { SampahTypeEntity } from './sampah-type.entity';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { SampahPriceEntity } from './sampah-price.entity';
 
 @Entity('sampah')
 export class SampahEntity {
@@ -16,11 +9,11 @@ export class SampahEntity {
   @Column()
   name: string;
 
-  @ManyToOne(() => SampahTypeEntity, (sampahtype) => sampahtype.sampah)
-  kategory: SampahTypeEntity;
-
   @Column()
-  price: number;
+  kategory: string;
+
+  @OneToMany(() => SampahPriceEntity, (price) => price.sampah)
+  price: SampahPriceEntity[];
 
   @CreateDateColumn()
   created: Date;
