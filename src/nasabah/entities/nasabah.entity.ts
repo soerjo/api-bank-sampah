@@ -1,11 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { NasabahBalanceEntity } from './balance.entity';
 
 @Entity('nasabah')
@@ -19,7 +12,7 @@ export class NasabahEntity {
   @Column()
   fullname: string;
 
-  @Column()
+  @Column({ default: '-' })
   phone: string;
 
   @Column()
@@ -28,8 +21,8 @@ export class NasabahEntity {
   @Column()
   rw: string;
 
-  @OneToMany(() => NasabahBalanceEntity, (balance) => balance.nasabah)
-  balance: NasabahBalanceEntity;
+  @OneToMany(() => NasabahBalanceEntity, (balance) => balance.id)
+  balance: NasabahBalanceEntity[];
 
   @CreateDateColumn()
   created: Date;
