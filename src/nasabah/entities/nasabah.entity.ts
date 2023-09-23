@@ -6,7 +6,7 @@ export class NasabahEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   username: string;
 
   @Column()
@@ -15,7 +15,7 @@ export class NasabahEntity {
   @Column({ default: '-' })
   phone: string;
 
-  @Column()
+  @Column({})
   rt: string;
 
   @Column()

@@ -34,6 +34,7 @@ import { TransactionTypeEntity } from './transaction/entities/transaction-type.e
         TransactionEntity,
         TransactionTypeEntity,
       ],
+      autoLoadEntities: true,
       synchronize: true,
       logging: true,
     }),

@@ -10,7 +10,7 @@ export class NasabahBalanceEntity {
   total_transaction: number;
 
   @Column({ default: 0 })
-  total_balance: string;
+  total_balance: number;
 
   @ManyToOne(() => NasabahEntity, (nasabah) => nasabah.id)
   nasabah: NasabahEntity;

@@ -1,4 +1,29 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateNasabahDto } from './create-nasabah.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsNumberString, IsOptional } from 'class-validator';
 
-export class UpdateNasabahDto extends PartialType(CreateNasabahDto) {}
+export class UpdateNasabahDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ example: 'soerjo' })
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ example: 'suryo hastomo' })
+  fullname: string;
+
+  @IsNumberString()
+  @IsOptional()
+  @ApiProperty({ example: '087808295838' })
+  phone?: string;
+
+  @IsNumberString()
+  @IsNotEmpty()
+  @ApiProperty({ example: '13' })
+  rt: string;
+
+  @IsNumberString()
+  @IsNotEmpty()
+  @ApiProperty({ example: '01' })
+  rw: string;
+}
