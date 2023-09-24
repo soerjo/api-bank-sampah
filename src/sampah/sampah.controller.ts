@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { SampahService } from './sampah.service';
 import { CreateSampahDto } from './dto/create-sampah.dto';
 import { UpdateSampahDto } from './dto/update-sampah.dto';
@@ -19,8 +19,10 @@ export class SampahController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.sampahService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const response = await this.sampahService.findOne(id);
+    if (!response) return new HttpException('sampah not found!', HttpStatus.NOT_FOUND);
+    return response;
   }
 
   @Patch(':id')

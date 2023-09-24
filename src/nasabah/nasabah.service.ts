@@ -60,6 +60,9 @@ export class NasabahService {
         balance_less: QueryParamsDto?.balance_less_than,
       });
 
+    queryBuilder.distinctOn(['nasabah.id']);
+    queryBuilder.orderBy({ 'nasabah.id': 'ASC', 'balance.created': 'DESC' });
+
     queryBuilder.limit(QueryParamsDto?.limit);
     queryBuilder.offset(QueryParamsDto?.limit * ((QueryParamsDto?.page || 1) - 1));
 
