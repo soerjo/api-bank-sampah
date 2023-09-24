@@ -80,17 +80,34 @@ export class NasabahService {
     return await this.nasabahRepository.findOneBy({ username });
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     const queryBuilder = this.nasabahBalanceRepository.createQueryBuilder('balance');
     queryBuilder.innerJoinAndSelect('balance.nasabah', 'nasabah');
     queryBuilder.where('nasabah.id = :id', { id });
+    queryBuilder.distinctOn(['nasabah.id']);
+    queryBuilder.orderBy({
+      'nasabah.id': 'ASC',
+      'balance.created': 'DESC',
+    });
+    queryBuilder.select([
+      'nasabah.id id',
+      'nasabah.username username',
+      'nasabah.fullname fullname',
+      'nasabah.phone phone',
+      'nasabah.rt rt',
+      'nasabah.rw rw',
+      'balance.total_transaction total_transaction',
+      'balance.total_balance total_balance',
+      'balance.created created',
+      'balance.updated updated',
+    ]);
 
-    return queryBuilder.execute();
+    return (await queryBuilder.execute())[0];
   }
 
   async update(id: string, updateNasabahDto: UpdateNasabahDto) {
     const isNasabahExist = await this.findOne(id);
-    if (!isNasabahExist[0]) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
+    if (!isNasabahExist) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
 
     const isUsernameExists = await this.findByName(updateNasabahDto?.username);
     if (isUsernameExists) return new HttpException('username is exists', HttpStatus.CONFLICT);
@@ -101,10 +118,30 @@ export class NasabahService {
       phone: updateNasabahDto.phone || isNasabahExist[0].phone,
       rt: updateNasabahDto.rt || isNasabahExist[0].rt,
       rw: updateNasabahDto.rw || isNasabahExist[0].rw,
-      balance: isNasabahExist[0].balance,
     });
 
     return this.findOne(id);
+  }
+
+  async deposit(id: string, deposit_balance: number) {
+    const nasabah = await this.findOne(id);
+    if (!nasabah) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
+
+    return this.nasabahBalanceRepository.save({
+      nasabah: nasabah,
+      total_transaction: nasabah.total_transaction + 1,
+      total_balance: nasabah.total_balance + deposit_balance,
+    });
+  }
+
+  async withdraw(id: string, withdraw_balance: number) {
+    const nasabah = await this.findOne(id);
+    if (!nasabah) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
+
+    return this.nasabahBalanceRepository.save({
+      nasabah: nasabah,
+      total_balance: nasabah.balance - withdraw_balance,
+    });
   }
 
   remove(id: string) {

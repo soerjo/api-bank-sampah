@@ -9,5 +9,6 @@ import { SampahPriceEntity } from './entities/sampah-price.entity';
   imports: [TypeOrmModule.forFeature([SampahEntity, SampahPriceEntity])],
   controllers: [SampahController],
   providers: [SampahService],
+  exports: [SampahService],
 })
 export class SampahModule {}

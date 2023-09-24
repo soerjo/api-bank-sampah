@@ -35,8 +35,8 @@ export class SampahService {
   }
 
   findAll(queryParamsDto: QueryParamsSampahDto) {
-    const queryBuilder = this.sampahPriceRepository.createQueryBuilder('sampah_price');
-    queryBuilder.innerJoinAndSelect('sampah_price.sampah', 'sampah');
+    const queryBuilder = this.sampahPriceRepository.createQueryBuilder('price');
+    queryBuilder.innerJoinAndSelect('price.sampah', 'sampah');
 
     queryParamsDto?.search &&
       queryBuilder.andWhere('sampah.name like :name', {
@@ -49,22 +49,22 @@ export class SampahService {
       });
 
     queryParamsDto?.price_more_than &&
-      queryBuilder.andWhere('sampah_price.price >= :price_more_than', {
+      queryBuilder.andWhere('price.price >= :price_more_than', {
         price_more_than: queryParamsDto?.price_more_than,
       });
 
     queryParamsDto?.price_less_than &&
-      queryBuilder.andWhere('sampah_price.price <= :transaction_less_than', {
+      queryBuilder.andWhere('price.price <= :transaction_less_than', {
         transaction_less_than: queryParamsDto?.price_less_than,
       });
 
     queryParamsDto?.date_start &&
-      queryBuilder.andWhere('sampah_price.created_time >= :date_start', {
+      queryBuilder.andWhere('price.created_time >= :date_start', {
         date_start: new Date(queryParamsDto?.date_start).getTime(),
       });
 
     queryParamsDto?.date_end &&
-      queryBuilder.andWhere('sampah_price.created_time < :date_end', {
+      queryBuilder.andWhere('price.created_time < :date_end', {
         date_end: new Date(queryParamsDto.date_end).getTime(),
       });
 
@@ -73,8 +73,17 @@ export class SampahService {
     queryBuilder.distinctOn(['sampah.name']);
     queryBuilder.orderBy({
       'sampah.name': 'ASC',
-      'sampah_price.created_time': 'DESC',
+      'price.created_time': 'DESC',
     });
+
+    queryBuilder.select([
+      'sampah.id id',
+      'sampah.name name',
+      'sampah.kategory kategory',
+      'price.price price',
+      'price.created_time created_time',
+      'price.created created',
+    ]);
 
     // queryBuilder.select([
     //   'nasabah.username username',
@@ -85,30 +94,60 @@ export class SampahService {
     return queryBuilder.getRawMany();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     const queryBuilder = this.sampahPriceRepository.createQueryBuilder('price');
     queryBuilder.innerJoinAndSelect('price.sampah', 'sampah');
     queryBuilder.distinctOn(['sampah.name']);
     queryBuilder.orderBy({ 'sampah.name': 'ASC', 'price.created_time': 'DESC' });
     queryBuilder.where('sampah.id = :id', { id });
+    queryBuilder.orWhere('price.id = :id', { id });
+    queryBuilder.select([
+      'sampah.id id',
+      'sampah.name name',
+      'sampah.kategory kategory',
+      'price.price price',
+      'price.created_time created_time',
+      'price.created created',
+    ]);
 
-    return queryBuilder.execute();
+    return (await queryBuilder.execute())[0];
+  }
+
+  async findHistoryById(id: string) {
+    const queryBuilder = this.sampahPriceRepository.createQueryBuilder('price');
+    queryBuilder.innerJoinAndSelect('price.sampah', 'sampah');
+    // queryBuilder.distinctOn(['sampah.name']);
+    queryBuilder.orderBy({ 'sampah.name': 'ASC', 'price.created_time': 'DESC' });
+    queryBuilder.where('sampah.id = :id', { id });
+    queryBuilder.orWhere('price.id = :id', { id });
+    queryBuilder.select([
+      'sampah.id id',
+      'sampah.name name',
+      'sampah.kategory kategory',
+      'price.price price',
+      'price.created_time created_time',
+      'price.created created',
+    ]);
+
+    return (await queryBuilder.execute())[0];
   }
 
   async update(id: string, updateSampahDto: UpdateSampahDto) {
-    const isSampahExists = await this.findOne(id);
-    if (!isSampahExists[0]) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
+    const sampah = await this.findOne(id);
+    if (!sampah) return new HttpException('sampah is not found!', HttpStatus.NOT_FOUND);
 
     if (updateSampahDto.name || updateSampahDto.kategory) {
       await this.sampahRepository.update(id, {
-        name: String(updateSampahDto.name).toUpperCase() || isSampahExists[0].name,
-        kategory: String(updateSampahDto.kategory).toUpperCase() || isSampahExists[0].kategory,
+        name: String(updateSampahDto.name).toUpperCase() || sampah.name,
+        kategory: String(updateSampahDto.kategory).toUpperCase() || sampah.kategory,
       });
     }
 
     if (updateSampahDto.price) {
+      console.log({ sampah, updateSampahDto });
+      const sampahRelation = await this.sampahRepository.findOne({ where: { id } });
       await this.sampahPriceRepository.save({
-        sampah: isSampahExists[0].sampah_id,
+        sampah: sampahRelation,
         price: updateSampahDto.price,
         created_time: new Date().getTime(),
       });

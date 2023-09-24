@@ -9,5 +9,6 @@ import { NasabahBalanceEntity } from './entities/balance.entity';
   imports: [TypeOrmModule.forFeature([NasabahEntity, NasabahBalanceEntity])],
   controllers: [NasabahController],
   providers: [NasabahService],
+  exports: [NasabahService],
 })
 export class NasabahModule {}

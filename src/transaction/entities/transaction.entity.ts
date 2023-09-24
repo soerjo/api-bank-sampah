@@ -1,41 +1,41 @@
-import { NasabahEntity } from 'src/nasabah/entities/nasabah.entity';
-import { SampahEntity } from 'src/sampah/entities/sampah.entity';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { TransactionTypeEntity } from './transaction-type.entity';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+export enum EtransactionType {
+  WITHDRAW = 'WITHDRAW/TARIK',
+  DEPOSIT = 'DEPOSIT/TABUNG',
+}
 
 @Entity('trasaction')
 export class TransactionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToMany(() => NasabahEntity)
-  @JoinTable()
-  nasabah: NasabahEntity;
+  @Column()
+  nasabah_id: string;
 
-  @ManyToOne(() => TransactionTypeEntity, (type) => type.transaction)
-  type: TransactionTypeEntity;
-
-  @ManyToMany(() => SampahEntity)
-  @JoinTable()
-  sampah: SampahEntity;
+  @Column({ enum: EtransactionType })
+  transaction_type: EtransactionType;
 
   @Column()
+  sampah_name: string;
+
+  @Column()
+  sampah_category: string;
+
+  @Column({ type: 'numeric' })
+  sampah_price: number;
+
+  @Column({ type: 'numeric' })
   weight: number;
 
-  @Column()
+  @Column({ type: 'numeric' })
   total_sampah_price: number;
 
-  @Column()
+  @Column({ type: 'numeric' })
   admin_fee: number;
+
+  @Column({ default: new Date().getTime(), type: 'bigint' })
+  created_time: number;
 
   @CreateDateColumn()
   created: Date;

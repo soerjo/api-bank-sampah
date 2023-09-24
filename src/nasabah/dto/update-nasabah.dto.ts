@@ -1,16 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsNumberString, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumberString, IsOptional, IsNumber } from 'class-validator';
 
 export class UpdateNasabahDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ example: 'soerjo' })
-  username: string;
+  username?: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ example: 'suryo hastomo' })
-  fullname: string;
+  fullname?: string;
 
   @IsNumberString()
   @IsOptional()
@@ -20,10 +20,14 @@ export class UpdateNasabahDto {
   @IsNumberString()
   @IsNotEmpty()
   @ApiProperty({ example: '13' })
-  rt: string;
+  rt?: string;
 
   @IsNumberString()
   @IsNotEmpty()
   @ApiProperty({ example: '01' })
-  rw: string;
+  rw?: string;
+
+  @IsNumber()
+  @IsOptional()
+  deposit?: number = 0;
 }

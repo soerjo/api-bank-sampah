@@ -29,9 +29,14 @@ project created to handle Bank Sampah API created with Nestjs Tech.
 
 |List Transaction
 
-- [GET] - /api/transaction?type="store|pull|all"
+- [GET] - /api/transaction?type="deposit|withdraw|all"
 - [GET] - /api/transaction/total
 - [GET] - /api/transaction/:nasabah_id?start_date="10/05/2021"&end_date="15/05/2021"
 - [GET] - /api/transaction/:id
 - [POST] - /api/transaction
 - [PATCH] - /api/transaction/:id
+
+## Note
+
+- ada bang sampah lain yaitu orang lain bisa join buat make aplikasi kita
+- pengepul (harga jenis sampah) bisa beda-beda terkait bang sampah masing masing juga bisa punya pengepul masing masing.

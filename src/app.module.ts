@@ -9,7 +9,6 @@ import { SampahPriceEntity } from './sampah/entities/sampah-price.entity';
 import { NasabahEntity } from './nasabah/entities/nasabah.entity';
 import { NasabahBalanceEntity } from './nasabah/entities/balance.entity';
 import { TransactionEntity } from './transaction/entities/transaction.entity';
-import { TransactionTypeEntity } from './transaction/entities/transaction-type.entity';
 
 @Module({
   imports: [
@@ -24,14 +23,7 @@ import { TransactionTypeEntity } from './transaction/entities/transaction-type.e
       password: process.env.DB_PASSWORD,
       username: process.env.DB_USERNAME,
       database: process.env.DB_DATABASE,
-      entities: [
-        SampahEntity,
-        SampahPriceEntity,
-        NasabahEntity,
-        NasabahBalanceEntity,
-        TransactionEntity,
-        TransactionTypeEntity,
-      ],
+      entities: [SampahEntity, SampahPriceEntity, NasabahEntity, NasabahBalanceEntity, TransactionEntity],
       autoLoadEntities: true,
       synchronize: true,
       logging: true,
