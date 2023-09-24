@@ -144,7 +144,7 @@ export class NasabahService {
 
     return this.nasabahBalanceRepository.save({
       nasabah: nasabah,
-      total_balance: nasabah.balance - withdraw_balance,
+      total_balance: nasabah.asal - withdraw_balance,
     });
   }
 

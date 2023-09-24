@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsString, IsOptional, IsNumberString, IsDateString, IsNumber, Min } from 'class-validator';
+import { IsString, IsOptional, IsNumberString, IsDateString, IsNumber, Min, IsEnum } from 'class-validator';
+import { EtransactionType } from '../entities/transaction.entity';
 
 export class QueryParamsTransactionDto {
   @IsString()
@@ -12,6 +13,11 @@ export class QueryParamsTransactionDto {
   @IsOptional()
   @ApiProperty({ required: false })
   search?: string;
+
+  @IsEnum(EtransactionType)
+  @IsOptional()
+  @ApiProperty({ required: false, enum: EtransactionType })
+  transaction_type?: EtransactionType;
 
   @IsNumberString()
   @IsOptional()

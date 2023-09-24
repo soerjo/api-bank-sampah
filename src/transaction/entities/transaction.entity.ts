@@ -17,23 +17,26 @@ export class TransactionEntity {
   @Column({ enum: EtransactionType })
   transaction_type: EtransactionType;
 
-  @Column()
+  @Column({ default: '-' })
   sampah_name: string;
 
-  @Column()
+  @Column({ default: '-' })
   sampah_category: string;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'numeric', default: 0 })
   sampah_price: number;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'numeric', default: 0 })
   weight: number;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'numeric', default: 0 })
   total_sampah_price: number;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'numeric', default: 0 })
   admin_fee: number;
+
+  @Column({ type: 'numeric', default: 0 })
+  total_transaction: number;
 
   @Column({ default: new Date().getTime(), type: 'bigint' })
   created_time: number;
