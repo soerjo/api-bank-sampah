@@ -7,7 +7,7 @@ export class CreateDepositTransactionDto {
   nasabah_id: string;
 
   @IsString()
-  @ApiProperty({ example: '0c5074d0-a067-4960-9a24-2447df305c9d' })
+  @ApiProperty({ example: 'bfa8391e-e266-40a6-807f-695ee7f863a7' })
   sampah_id: string;
 
   @IsNumber()

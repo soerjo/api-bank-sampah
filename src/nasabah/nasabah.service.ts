@@ -105,6 +105,10 @@ export class NasabahService {
     return (await queryBuilder.execute())[0];
   }
 
+  findOneForRelations(id: string) {
+    return this.nasabahRepository.findOne({ where: { id } });
+  }
+
   async update(id: string, updateNasabahDto: UpdateNasabahDto) {
     const isNasabahExist = await this.findOne(id);
     if (!isNasabahExist) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);

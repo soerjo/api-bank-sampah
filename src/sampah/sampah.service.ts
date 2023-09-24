@@ -100,7 +100,7 @@ export class SampahService {
     queryBuilder.distinctOn(['sampah.name']);
     queryBuilder.orderBy({ 'sampah.name': 'ASC', 'price.created_time': 'DESC' });
     queryBuilder.where('sampah.id = :id', { id });
-    queryBuilder.orWhere('price.id = :id', { id });
+    // queryBuilder.orWhere('price.id = :id', { id });
     queryBuilder.select([
       'sampah.id id',
       'sampah.name name',
@@ -119,7 +119,7 @@ export class SampahService {
     // queryBuilder.distinctOn(['sampah.name']);
     queryBuilder.orderBy({ 'sampah.name': 'ASC', 'price.created_time': 'DESC' });
     queryBuilder.where('sampah.id = :id', { id });
-    queryBuilder.orWhere('price.id = :id', { id });
+    // queryBuilder.orWhere('price.id = :id', { id });
     queryBuilder.select([
       'sampah.id id',
       'sampah.name name',

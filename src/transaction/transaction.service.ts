@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { CreateDepositTransactionDto } from './dto/create-deposit-transaction.dto';
 import { CreateWithdrawTransactionDto } from './dto/create-withdraw-transaction.dto';
 import { Repository } from 'typeorm';
@@ -9,7 +8,6 @@ import { SampahService } from 'src/sampah/sampah.service';
 import { NasabahService } from 'src/nasabah/nasabah.service';
 import { SampahPriceEntity } from 'src/sampah/entities/sampah-price.entity';
 import { SampahEntity } from 'src/sampah/entities/sampah.entity';
-import { FindSampahDto } from './dto/find-sampah.dto';
 import { QueryParamsTransactionDto } from './dto/query-transaction.dto';
 
 @Injectable()
@@ -32,8 +30,10 @@ export class TransactionService {
     const total_price_sampah = createTransactionDto.weight * sampah.price;
     const admin_fee = (total_price_sampah * 25) / 100;
     const deposit = total_price_sampah - (total_price_sampah * 25) / 100;
+
+    const nasabahRelation = await this.nasabahService.findOneForRelations(createTransactionDto.nasabah_id);
     const depositTransaction = await this.transactionRepository.save({
-      nasabah_id: createTransactionDto.nasabah_id,
+      nasabah: nasabahRelation,
       transaction_type: EtransactionType.DEPOSIT,
       sampah_name: sampah.name,
       sampah_category: sampah.kategory,
@@ -55,65 +55,72 @@ export class TransactionService {
   }
 
   findAll(queryParamsDto: QueryParamsTransactionDto) {
-    // const queryBuilder = this.sampahPriceRepository.createQueryBuilder('price');
-    // queryBuilder.innerJoinAndSelect('price.sampah', 'sampah');
-    // queryParamsDto?.search &&
-    //   queryBuilder.andWhere('sampah.name like :name', {
-    //     name: `%${queryParamsDto?.search}%`,
+    const queryBuilder = this.transactionRepository.createQueryBuilder('transaction');
+    queryBuilder.innerJoinAndSelect('transaction.nasabah', 'nasabah');
+    queryParamsDto?.search &&
+      queryBuilder
+        .andWhere('nasabah.username like :username', {
+          username: `%${queryParamsDto?.search}%`,
+        })
+        .orWhere('transaction.sampah_name like :sampah_name', {
+          sampah_name: `%${queryParamsDto?.search}%`,
+        })
+        .orWhere('transaction.sampah_category like :sampah_category', {
+          sampah_category: `%${queryParamsDto?.search}%`,
+        });
+
+    // queryParamsDto?.nasabah_id &&
+    //   queryBuilder.andWhere('nasabah.id = :id', {
+    //     id: queryParamsDto?.nasabah_id,
     //   });
-    // queryParamsDto?.category &&
-    //   queryBuilder.andWhere('sampah.kategory = :kategory', {
-    //     kategory: `${queryParamsDto?.category}`,
-    //   });
-    // queryParamsDto?.price_more_than &&
-    //   queryBuilder.andWhere('price.price >= :price_more_than', {
-    //     price_more_than: queryParamsDto?.price_more_than,
-    //   });
-    // queryParamsDto?.price_less_than &&
-    //   queryBuilder.andWhere('price.price <= :transaction_less_than', {
-    //     transaction_less_than: queryParamsDto?.price_less_than,
-    //   });
-    // queryParamsDto?.date_start &&
-    //   queryBuilder.andWhere('price.created_time >= :date_start', {
-    //     date_start: new Date(queryParamsDto?.date_start).getTime(),
-    //   });
-    // queryParamsDto?.date_end &&
-    //   queryBuilder.andWhere('price.created_time < :date_end', {
-    //     date_end: new Date(queryParamsDto.date_end).getTime(),
-    //   });
-    // queryBuilder.limit(queryParamsDto?.limit);
-    // queryBuilder.offset(queryParamsDto?.limit * ((queryParamsDto?.page || 1) - 1));
-    // queryBuilder.distinctOn(['sampah.name']);
+
+    queryParamsDto?.price_more_than &&
+      queryBuilder.andWhere('transaction.total_sampah_price >= :price_more_than', {
+        price_more_than: queryParamsDto?.price_more_than,
+      });
+    queryParamsDto?.price_less_than &&
+      queryBuilder.andWhere('transaction.total_sampah_price <= :price_less_than', {
+        price_less_than: queryParamsDto?.price_less_than,
+      });
+
+    queryParamsDto?.weight_more_than &&
+      queryBuilder.andWhere('transaction.weigth >= :weight_more_than', {
+        weight_more_than: queryParamsDto?.weight_more_than,
+      });
+    queryParamsDto?.weight_less_than &&
+      queryBuilder.andWhere('transaction.weigth <= :weight_less_than', {
+        weight_less_than: queryParamsDto?.weight_less_than,
+      });
+
+    queryParamsDto?.date_start &&
+      queryBuilder.andWhere('transaction.created_time >= :date_start', {
+        date_start: new Date(queryParamsDto?.date_start).getTime(),
+      });
+    queryParamsDto?.date_end &&
+      queryBuilder.andWhere('transaction.created_time < :date_end', {
+        date_end: new Date(queryParamsDto.date_end).getTime(),
+      });
+    queryBuilder.limit(queryParamsDto?.limit);
+    queryBuilder.offset(queryParamsDto?.limit * ((queryParamsDto?.page || 1) - 1));
+    // queryBuilder.distinctOn(['nasabah.name']);
     // queryBuilder.orderBy({
-    //   'sampah.name': 'ASC',
-    //   'price.created_time': 'DESC',
+    //   'nasabah.name': 'ASC',
+    //   'transaction.created_time': 'DESC',
     // });
     // queryBuilder.select([
-    //   'sampah.id id',
-    //   'sampah.name name',
-    //   'sampah.kategory kategory',
-    //   'price.price price',
-    //   'price.created_time created_time',
+    //   'nasabah.id id',
+    //   'nasabah.name name',
+    //   'nasabah.kategory kategory',
+    //   'transaction.price price',
+    //   'transaction.created_time created_time',
     //   'price.created created',
     // ]);
-    // // queryBuilder.select([
-    // //   'nasabah.username username',
-    // //   'sampah.total_transaction total_transaction',
-    // //   'sampah.total_sampah total_sampah',
-    // // ]);
-    // // return await queryBuilder.execute();
-    // return queryBuilder.getRawMany();
-  }
-
-  findOne(id: string) {
-    return `This action returns a #${id} transaction`;
-  }
-
-  update(id: string, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
-  }
-
-  remove(id: string) {
-    return `This action removes a #${id} transaction`;
+    // queryBuilder.select([
+    //   'nasabah.username username',
+    //   'nasabah.total_transaction total_transaction',
+    //   'nasabah.total_nasabah total_nasabah',
+    // ]);
+    // return await queryBuilder.execute();
+    return queryBuilder.getRawMany();
   }
 }

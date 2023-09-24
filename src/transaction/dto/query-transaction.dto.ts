@@ -6,12 +6,12 @@ export class QueryParamsTransactionDto {
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
-  search?: string;
+  nasabah_id?: string;
 
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
-  category?: string;
+  search?: string;
 
   @IsNumberString()
   @IsOptional()
@@ -22,6 +22,16 @@ export class QueryParamsTransactionDto {
   @IsOptional()
   @ApiProperty({ required: false })
   price_less_than?: number;
+
+  @IsNumberString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  weight_more_than?: number;
+
+  @IsNumberString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  weight_less_than?: number;
 
   @IsDateString()
   @IsOptional()

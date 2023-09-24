@@ -1,17 +1,18 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { NasabahEntity } from 'src/nasabah/entities/nasabah.entity';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export enum EtransactionType {
   WITHDRAW = 'WITHDRAW/TARIK',
   DEPOSIT = 'DEPOSIT/TABUNG',
 }
 
-@Entity('trasaction')
+@Entity('transaction')
 export class TransactionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  nasabah_id: string;
+  @ManyToOne(() => NasabahEntity, (nasabah) => nasabah.transactions)
+  nasabah: NasabahEntity;
 
   @Column({ enum: EtransactionType })
   transaction_type: EtransactionType;

@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { NasabahBalanceEntity } from './balance.entity';
+import { TransactionEntity } from 'src/transaction/entities/transaction.entity';
 
 @Entity('nasabah')
 export class NasabahEntity {
@@ -23,6 +24,9 @@ export class NasabahEntity {
 
   @OneToMany(() => NasabahBalanceEntity, (balance) => balance.id)
   balance: NasabahBalanceEntity[];
+
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.nasabah)
+  transactions: TransactionEntity[];
 
   @CreateDateColumn()
   created: Date;
