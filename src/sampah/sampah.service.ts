@@ -68,8 +68,8 @@ export class SampahService {
         date_end: new Date(queryParamsDto.date_end).getTime(),
       });
 
-    queryBuilder.limit(queryParamsDto?.limit);
-    queryBuilder.offset(queryParamsDto?.limit * ((queryParamsDto?.page || 1) - 1));
+    queryParamsDto.limit && queryBuilder.limit(queryParamsDto?.limit);
+    queryParamsDto.limit && queryBuilder.offset(queryParamsDto?.limit * ((queryParamsDto?.page || 1) - 1));
     queryBuilder.distinctOn(['sampah.name']);
     queryBuilder.orderBy({
       'sampah.name': 'ASC',
