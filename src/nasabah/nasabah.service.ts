@@ -6,6 +6,7 @@ import { DataSource, Repository } from 'typeorm';
 import { NasabahEntity } from './entities/nasabah.entity';
 import { NasabahBalanceEntity } from './entities/balance.entity';
 import { QueryParamsDto } from './dto/query-params.dto';
+import delay from 'src/utils/delay.util';
 
 @Injectable()
 export class NasabahService {
@@ -20,7 +21,7 @@ export class NasabahService {
 
   async create(createNasabahDto: CreateNasabahDto) {
     const isUsernameExists = await this.findByName(createNasabahDto.username);
-    if (isUsernameExists) return new HttpException('username is exists', HttpStatus.CONFLICT);
+    if (isUsernameExists) throw new HttpException('username is exists', HttpStatus.CONFLICT);
 
     const nasabah = this.nasabahRepository.create(createNasabahDto);
     const res_nasabah = await this.nasabahRepository.save(nasabah);
@@ -36,9 +37,16 @@ export class NasabahService {
     queryBuilder.innerJoinAndSelect('balance.nasabah', 'nasabah');
 
     QueryParamsDto?.search &&
-      queryBuilder.andWhere('nasabah.username like :name', {
-        name: `%${QueryParamsDto?.search}%`,
-      });
+      queryBuilder
+        .andWhere('nasabah.username like :name', {
+          name: `%${QueryParamsDto?.search}%`,
+        })
+        .orWhere('nasabah.fullname like :fullname', {
+          fullname: `%${QueryParamsDto?.search}%`,
+        })
+        .orWhere('nasabah.phone like :phone', {
+          phone: `%${QueryParamsDto?.search}%`,
+        });
 
     QueryParamsDto?.transaction_more_than &&
       queryBuilder.andWhere('balance.total_transaction >= :transaction_more', {
@@ -63,8 +71,8 @@ export class NasabahService {
     queryBuilder.distinctOn(['nasabah.id']);
     queryBuilder.orderBy({ 'nasabah.id': 'ASC', 'balance.created': 'DESC' });
 
-    queryBuilder.limit(QueryParamsDto?.limit);
-    queryBuilder.offset(QueryParamsDto?.limit * ((QueryParamsDto?.page || 1) - 1));
+    QueryParamsDto?.limit && queryBuilder.limit(QueryParamsDto?.limit);
+    QueryParamsDto?.limit && queryBuilder.offset(QueryParamsDto?.limit * ((QueryParamsDto?.page || 1) - 1));
 
     // queryBuilder.select([
     //   'nasabah.username username',
@@ -72,6 +80,7 @@ export class NasabahService {
     //   'balance.total_balance total_balance',
     // ]);
     // return await queryBuilder.execute();
+    // await delay(5000);
     return queryBuilder.getRawMany();
   }
 
@@ -114,10 +123,10 @@ export class NasabahService {
 
   async update(id: string, updateNasabahDto: UpdateNasabahDto) {
     const isNasabahExist = await this.findOne(id);
-    if (!isNasabahExist) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
+    if (!isNasabahExist) throw new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
 
     const isUsernameExists = await this.findByName(updateNasabahDto?.username);
-    if (isUsernameExists) return new HttpException('username is exists', HttpStatus.CONFLICT);
+    if (isUsernameExists) throw new HttpException('username is exists', HttpStatus.CONFLICT);
 
     await this.nasabahRepository.update(id, {
       username: updateNasabahDto.username || isNasabahExist[0].username,
@@ -132,7 +141,7 @@ export class NasabahService {
 
   async deposit(id: string, deposit_balance: number) {
     const nasabah = await this.findOne(id);
-    if (!nasabah) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
+    if (!nasabah) throw new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
 
     return this.nasabahBalanceRepository.save({
       nasabah: nasabah,
@@ -143,7 +152,7 @@ export class NasabahService {
 
   async withdraw(id: string, withdraw_balance: number) {
     const nasabah = await this.findOne(id);
-    if (!nasabah) return new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
+    if (!nasabah) throw new HttpException('nasabah is not found!', HttpStatus.NOT_FOUND);
 
     return this.nasabahBalanceRepository.save({
       nasabah: nasabah,
