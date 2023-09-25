@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsNumber, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, Min, IsNumberString } from 'class-validator';
 
 export class UpdateSampahDto {
   @IsString()
@@ -13,6 +14,7 @@ export class UpdateSampahDto {
   kategory: string;
 
   @IsNumber()
+  @Type()
   @Min(0)
   @IsOptional()
   @ApiProperty({ example: 3000 })

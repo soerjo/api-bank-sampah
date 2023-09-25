@@ -23,7 +23,7 @@ export class SampahService {
       name: createSampahDto.name,
       kategory: createSampahDto.kategory,
     });
-    if (isSampahExists) return new HttpException('sampah already exists', HttpStatus.CONFLICT);
+    if (isSampahExists) throw new HttpException('sampah already exists', HttpStatus.CONFLICT);
 
     const sampah = this.sampahRepository.create(createSampahDto);
     const res_sampah = await this.sampahRepository.save(sampah);
@@ -39,9 +39,13 @@ export class SampahService {
     queryBuilder.innerJoinAndSelect('price.sampah', 'sampah');
 
     queryParamsDto?.search &&
-      queryBuilder.andWhere('sampah.name like :name', {
-        name: `%${queryParamsDto?.search}%`,
-      });
+      queryBuilder
+        .where('sampah.name ilike :search', {
+          search: `%${queryParamsDto?.search}%`,
+        })
+        .orWhere('sampah.kategory ilike :search', {
+          search: `%${queryParamsDto?.search}%`,
+        });
 
     queryParamsDto?.category &&
       queryBuilder.andWhere('sampah.kategory = :kategory', {
@@ -73,7 +77,7 @@ export class SampahService {
     queryBuilder.distinctOn(['sampah.name']);
     queryBuilder.orderBy({
       'sampah.name': 'ASC',
-      'price.created_time': 'DESC',
+      'price.price': 'DESC',
     });
 
     queryBuilder.select([
@@ -133,8 +137,9 @@ export class SampahService {
   }
 
   async update(id: string, updateSampahDto: UpdateSampahDto) {
+    console.log({ id, updateSampahDto });
     const sampah = await this.findOne(id);
-    if (!sampah) return new HttpException('sampah is not found!', HttpStatus.NOT_FOUND);
+    if (!sampah) throw new HttpException('sampah is not found!', HttpStatus.NOT_FOUND);
 
     if (updateSampahDto.name || updateSampahDto.kategory) {
       await this.sampahRepository.update(id, {

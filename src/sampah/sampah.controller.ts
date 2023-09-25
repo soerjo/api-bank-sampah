@@ -27,6 +27,7 @@ export class SampahController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSampahDto: UpdateSampahDto) {
+    console.log({ updateSampahDto });
     return this.sampahService.update(id, updateSampahDto);
   }
 
