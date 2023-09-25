@@ -105,14 +105,17 @@ export class TransactionService {
       queryBuilder.innerJoinAndSelect('transaction.nasabah', 'nasabah');
       queryParamsDto?.search &&
         queryBuilder
-          .andWhere('nasabah.username like :username', {
-            username: `%${queryParamsDto?.search}%`,
+          .andWhere('nasabah.username ilike :search', {
+            search: `%${queryParamsDto?.search}%`,
           })
-          .orWhere('transaction.sampah_name like :sampah_name', {
-            sampah_name: `%${queryParamsDto?.search}%`,
+          .orWhere('transaction.sampah_name ilike :search', {
+            search: `%${queryParamsDto?.search}%`,
           })
-          .orWhere('transaction.sampah_category like :sampah_category', {
-            sampah_category: `%${queryParamsDto?.search}%`,
+          .orWhere('transaction.sampah_category ilike :search', {
+            search: `%${queryParamsDto?.search}%`,
+          })
+          .orWhere('transaction.transaction_type ilike :search', {
+            search: `%${queryParamsDto?.search}%`,
           });
 
       queryParamsDto?.nasabah_id &&
@@ -152,13 +155,10 @@ export class TransactionService {
           date_end: new Date(queryParamsDto.date_end).getTime(),
         });
 
-      queryBuilder.limit(queryParamsDto?.limit);
-      queryBuilder.offset(queryParamsDto?.limit * ((queryParamsDto?.page || 1) - 1));
-      // queryBuilder.distinctOn(['nasabah.name']);
-      // queryBuilder.orderBy({
-      //   'nasabah.name': 'ASC',
-      //   'transaction.created_time': 'DESC',
-      // });
+      queryParamsDto?.limit && queryBuilder.limit(queryParamsDto?.limit);
+      queryParamsDto?.limit && queryBuilder.offset(queryParamsDto?.limit * ((queryParamsDto?.page || 1) - 1));
+
+      queryBuilder.orderBy({ 'transaction.created_time': 'DESC' });
       // queryBuilder.select([
       //   'nasabah.id id',
       //   'nasabah.name name',

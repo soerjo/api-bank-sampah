@@ -1,5 +1,6 @@
 import { IsNumber, IsString, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateDepositTransactionDto {
   @IsString()
@@ -11,6 +12,7 @@ export class CreateDepositTransactionDto {
   sampah_id: string;
 
   @IsNumber()
+  // @Type()
   @Min(0)
   @ApiProperty({ example: 3 })
   weight: number;

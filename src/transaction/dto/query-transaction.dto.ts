@@ -61,5 +61,5 @@ export class QueryParamsTransactionDto {
   @IsOptional()
   @ApiProperty({ required: false })
   @Transform((property) => parseInt(property.value))
-  limit?: number = 5;
+  limit?: number;
 }

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsNumber, IsString, Min } from 'class-validator';
 
 export class CreateWithdrawTransactionDto {
@@ -7,6 +8,7 @@ export class CreateWithdrawTransactionDto {
   nasabah_id: string;
 
   @IsNumber()
+  @Type()
   @Min(0)
   @ApiProperty({ example: 2000 })
   withdraw: number;
